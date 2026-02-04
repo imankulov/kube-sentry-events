@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+bin/
+dist/
+*.exe
+*.test
+*.out
+
+# Documentation
+*.md
+docs/
+LICENSE
+
+# Helm chart
+deploy/
+
+# CI/CD
+.github/
+
+# Claude
+.claude/
+.mcp.json
+
+# Test files
+*_test.go
