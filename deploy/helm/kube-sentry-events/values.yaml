@@ -1,0 +1,73 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/imankulov/kube-sentry-events
+  pullPolicy: IfNotPresent
+  tag: ""  # Defaults to appVersion
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Sentry configuration
+sentry:
+  # DSN can be provided directly or via existingSecret
+  dsn: ""
+  # Use existing secret for DSN (recommended for production)
+  existingSecret: ""
+  existingSecretKey: "SENTRY_DSN"
+  environment: "production"
+  enableLogs: true
+
+# Event filtering
+events:
+  # Namespaces to watch (empty = all namespaces)
+  namespaces: []
+  # Namespaces to exclude
+  excludeNamespaces:
+    - kube-system
+  # Event reasons to monitor (empty = defaults)
+  reasons: []
+  # Custom thresholds (format: "Reason:count")
+  # Example: ["Unhealthy:10", "BackOff:5"]
+  thresholds: []
+
+# Deduplication window
+dedupWindow: "5m"
+
+# Log level (debug, info, warn, error)
+logLevel: "info"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 10m
+    memory: 32Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

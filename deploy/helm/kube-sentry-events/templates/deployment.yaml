@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kube-sentry-events.fullname" . }}
+  labels:
+    {{- include "kube-sentry-events.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kube-sentry-events.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "kube-sentry-events.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kube-sentry-events.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kube-sentry-events.secretName" . }}
+                  key: {{ .Values.sentry.existingSecretKey }}
+            - name: SENTRY_ENVIRONMENT
+              value: {{ .Values.sentry.environment | quote }}
+            - name: KUBE_SENTRY_ENABLE_LOGS
+              value: {{ .Values.sentry.enableLogs | quote }}
+            - name: KUBE_SENTRY_LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
+            - name: KUBE_SENTRY_DEDUP_WINDOW
+              value: {{ .Values.dedupWindow | quote }}
+            {{- if .Values.events.namespaces }}
+            - name: KUBE_SENTRY_NAMESPACES
+              value: {{ .Values.events.namespaces | join "," | quote }}
+            {{- end }}
+            {{- if .Values.events.excludeNamespaces }}
+            - name: KUBE_SENTRY_EXCLUDE_NAMESPACES
+              value: {{ .Values.events.excludeNamespaces | join "," | quote }}
+            {{- end }}
+            {{- if .Values.events.reasons }}
+            - name: KUBE_SENTRY_EVENTS
+              value: {{ .Values.events.reasons | join "," | quote }}
+            {{- end }}
+            {{- if .Values.events.thresholds }}
+            - name: KUBE_SENTRY_THRESHOLDS
+              value: {{ .Values.events.thresholds | join "," | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

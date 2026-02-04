@@ -1,0 +1,16 @@
+apiVersion: v2
+name: kube-sentry-events
+description: Kubernetes event watcher that sends critical cluster events to Sentry
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kubernetes
+  - sentry
+  - monitoring
+  - events
+maintainers:
+  - name: Roman Imankulov
+    url: https://github.com/imankulov
+sources:
+  - https://github.com/imankulov/kube-sentry-events
